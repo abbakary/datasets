@@ -52,6 +52,8 @@ export default function DatasetsPage() {
     votedFor: [],
   });
   const [appliedFilters, setAppliedFilters] = useState({ ...filters });
+  const [loadedCount, setLoadedCount] = useState(12); // Number of datasets initially loaded
+  const itemsPerLoad = 12; // Number of datasets to load per "Load more" click
 
   const recentQueries = [
     "Social Media Impact on Teen Mental Health",
@@ -190,6 +192,15 @@ export default function DatasetsPage() {
   };
 
   const trendingDatasets = generateDemoDatasets();
+
+  // Reset loaded count when search, category, or sorting changes
+  useEffect(() => {
+    setLoadedCount(itemsPerLoad);
+  }, [search, selectedCategory, sortBy, appliedFilters]);
+
+  const handleLoadMore = () => {
+    setLoadedCount((prev) => prev + itemsPerLoad);
+  };
 
   const handleApplyFilters = () => {
     setAppliedFilters({ ...filters });
@@ -825,7 +836,7 @@ export default function DatasetsPage() {
                 }}
               >
                 {filteredDatasets.length > 0 ? (
-                  filteredDatasets.map((dataset) => (
+                  filteredDatasets.slice(0, loadedCount).map((dataset) => (
                     <DatasetCard
                       key={dataset.id}
                       dataset={dataset}
@@ -853,6 +864,44 @@ export default function DatasetsPage() {
                   </Box>
                 )}
               </Box>
+
+              {/* Load More Button */}
+              {filteredDatasets.length > loadedCount && (
+                <Box
+                  sx={{
+                    display: "flex",
+                    justifyContent: "center",
+                    mt: 5,
+                    mb: 2,
+                  }}
+                >
+                  <Box
+                    onClick={handleLoadMore}
+                    sx={{
+                      px: 3.5,
+                      py: 1.2,
+                      backgroundColor: PRIMARY_COLOR,
+                      color: "#fff",
+                      borderRadius: "8px",
+                      fontWeight: 600,
+                      fontSize: "0.95rem",
+                      cursor: "pointer",
+                      transition: "all 0.2s ease",
+                      border: `2px solid ${PRIMARY_COLOR}`,
+                      "&:hover": {
+                        backgroundColor: "#50ada8",
+                        transform: "translateY(-2px)",
+                        boxShadow: "0 6px 16px rgba(97, 197, 195, 0.2)",
+                      },
+                      "&:active": {
+                        transform: "translateY(0)",
+                      },
+                    }}
+                  >
+                    Load More
+                  </Box>
+                </Box>
+              )}
             </Box>
           </Box>
         </Container>
