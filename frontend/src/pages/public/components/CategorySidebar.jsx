@@ -157,6 +157,7 @@ export default function CategorySidebar({ onCategorySelect, selectedCategory }) 
           xs: 3,
           md: 0,
         },
+        position: "relative",
       }}
     >
       <Paper
@@ -165,7 +166,7 @@ export default function CategorySidebar({ onCategorySelect, selectedCategory }) 
           backgroundColor: "#fff",
           border: "1px solid #e5e7eb",
           borderRadius: "12px",
-          overflow: "hidden",
+          overflow: "visible",
         }}
       >
         <Box sx={{ p: 2.5 }}>
@@ -185,7 +186,7 @@ export default function CategorySidebar({ onCategorySelect, selectedCategory }) 
           sx={{
             maxHeight: "calc(100vh - 300px)",
             overflowY: "auto",
-            overflowX: "hidden",
+            overflowX: "visible",
             // Hide scrollbar completely but keep scrolling functionality
             "&::-webkit-scrollbar": {
               display: "none",
@@ -193,6 +194,7 @@ export default function CategorySidebar({ onCategorySelect, selectedCategory }) 
             // Firefox
             scrollbarWidth: "none",
             msOverflowStyle: "none",
+            position: "relative",
           }}
         >
           {categoriesData.map((category) => {
@@ -272,41 +274,32 @@ export default function CategorySidebar({ onCategorySelect, selectedCategory }) 
                 {isHovered && (
                   <Box
                     sx={{
-                      position: "fixed",
-                      left: {
-                        xs: "50%",
-                        md: "calc(100% + 12px)",
-                      },
-                      top: {
-                        xs: "50%",
-                        md: "auto",
-                      },
-                      transform: {
-                        xs: "translate(-50%, -50%)",
-                        md: "none",
-                      },
-                      minWidth: { xs: 280, md: 260 },
-                      maxWidth: 300,
+                      position: "absolute",
+                      left: "calc(100% + 16px)",
+                      top: 0,
+                      minWidth: 280,
+                      maxWidth: 320,
                       backgroundColor: "#fff",
-                      border: `2px solid ${PRIMARY_COLOR}`,
+                      border: `1px solid #e5e7eb`,
                       borderRadius: "12px",
-                      boxShadow: "0 12px 32px rgba(97, 197, 195, 0.15)",
+                      boxShadow: "0 8px 24px rgba(0, 0, 0, 0.1)",
                       zIndex: 999,
-                      py: 1,
+                      py: 1.2,
+                      px: 0.5,
                       animation: "fadeIn 0.2s ease-in-out",
                       "@keyframes fadeIn": {
                         from: {
                           opacity: 0,
-                          transform: "scale(0.95)",
+                          transform: "translateX(-8px)",
                         },
                         to: {
                           opacity: 1,
-                          transform: "scale(1)",
+                          transform: "translateX(0)",
                         },
                       },
                     }}
                   >
-                    {category.subcategories.map((subcategory) => {
+                    {category.subcategories.map((subcategory, index) => {
                       const isSubSelected =
                         selectedCategory?.selectedSubcategory?.id ===
                         subcategory.id;
@@ -322,13 +315,15 @@ export default function CategorySidebar({ onCategorySelect, selectedCategory }) 
                             alignItems: "center",
                             gap: 1.2,
                             px: 2.5,
-                            py: 1.1,
+                            py: 1.3,
                             cursor: "pointer",
                             backgroundColor: isSubSelected
                               ? "#e6f7f6"
                               : "transparent",
                             color: isSubSelected ? PRIMARY_COLOR : "#374151",
                             transition: "all 0.15s ease",
+                            borderRadius: "8px",
+                            mx: 1,
                             "&:hover": {
                               backgroundColor: "#f3fffe",
                             },
@@ -336,12 +331,13 @@ export default function CategorySidebar({ onCategorySelect, selectedCategory }) 
                         >
                           <Typography
                             sx={{
-                              fontSize: "0.9rem",
+                              fontSize: "0.95rem",
                               fontWeight: isSubSelected ? 600 : 500,
                               flex: 1,
                               overflow: "hidden",
                               textOverflow: "ellipsis",
                               whiteSpace: "nowrap",
+                              color: "inherit",
                             }}
                           >
                             {subcategory.name}
@@ -354,10 +350,10 @@ export default function CategorySidebar({ onCategorySelect, selectedCategory }) 
                                   ? PRIMARY_COLOR
                                   : "#d1d5db",
                                 color: isSubSelected ? "#fff" : "#374151",
-                                fontSize: "0.65rem",
-                                height: 18,
-                                minWidth: 18,
-                                padding: "0 3px",
+                                fontSize: "0.7rem",
+                                height: 20,
+                                minWidth: 20,
+                                padding: "0 4px",
                                 fontWeight: 700,
                               },
                             }}

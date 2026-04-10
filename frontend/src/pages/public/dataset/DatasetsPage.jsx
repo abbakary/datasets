@@ -138,9 +138,15 @@ export default function DatasetsPage() {
           minHeight: "100vh",
           backgroundColor: "#f8f9fb",
           py: 4,
+          position: "relative",
         }}
       >
-        <Container maxWidth="xl">
+        <Container
+          maxWidth="xl"
+          sx={{
+            position: "relative",
+          }}
+        >
           {/* Search Bar */}
           <Box sx={{ mb: 4 }}>
             <TextField
@@ -199,6 +205,7 @@ export default function DatasetsPage() {
                 md: "320px 1fr",
               },
               gap: 3,
+              position: "relative",
             }}
           >
             {/* Sidebar */}
