@@ -7,7 +7,6 @@ import {
   CardContent,
   TextField,
   Box,
-  Chip,
   Avatar,
   IconButton,
   InputAdornment,
@@ -18,25 +17,19 @@ import {
   TrendingUp,
   MoreVertical,
   ChevronUp,
+  Calendar,
+  FileIcon,
+  HardDrive,
+  Download,
 } from "lucide-react";
 import PageLayout from "../components/PageLayout";
+import CategorySidebar from "../components/CategorySidebar";
 
 const PRIMARY_COLOR = "#61C5C3";
 
 export default function DatasetsPage() {
   const [search, setSearch] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState("All datasets");
-
-  const categories = [
-    "All datasets",
-    "Computer Science",
-    "Education",
-    "Classification",
-    "Computer Vision",
-    "NLP",
-    "Data Visualization",
-    "Pre-Trained Model",
-  ];
+  const [selectedCategory, setSelectedCategory] = useState(null);
 
   const trendingDatasets = [
     {
@@ -114,13 +107,33 @@ export default function DatasetsPage() {
       dataset.title.toLowerCase().includes(search.toLowerCase()) ||
       dataset.author.toLowerCase().includes(search.toLowerCase());
 
-    const matchesCategory =
-      selectedCategory === "All datasets" ||
-      dataset.title.toLowerCase().includes(selectedCategory.toLowerCase()) ||
-      dataset.author.toLowerCase().includes(selectedCategory.toLowerCase());
+    // If no category is selected, show all datasets
+    if (!selectedCategory) {
+      return matchesSearch;
+    }
 
-    return matchesSearch && matchesCategory;
+    // If a specific subcategory is selected
+    if (selectedCategory.selectedSubcategory) {
+      return (
+        matchesSearch &&
+        (dataset.title.toLowerCase().includes(selectedCategory.selectedSubcategory.name.toLowerCase()) ||
+          dataset.title.toLowerCase().includes(selectedCategory.name.toLowerCase()))
+      );
+    }
+
+    // If only main category is selected
+    return (
+      matchesSearch &&
+      (dataset.title.toLowerCase().includes(selectedCategory.name.toLowerCase()) ||
+        dataset.author.toLowerCase().includes(selectedCategory.name.toLowerCase()))
+    );
   });
+
+  const categoryTitle = selectedCategory?.selectedSubcategory
+    ? selectedCategory.selectedSubcategory.name
+    : selectedCategory
+    ? selectedCategory.name
+    : "All Datasets";
 
   return (
     <PageLayout>
@@ -132,7 +145,8 @@ export default function DatasetsPage() {
         }}
       >
         <Container maxWidth="xl">
-          <Box sx={{ mb: 3 }}>
+          {/* Search Bar */}
+          <Box sx={{ mb: 4 }}>
             <TextField
               fullWidth
               placeholder="Search datasets"
@@ -141,11 +155,11 @@ export default function DatasetsPage() {
               variant="outlined"
               sx={{
                 backgroundColor: "#fff",
-                borderRadius: "8px",
+                borderRadius: "10px",
                 "& .MuiOutlinedInput-root": {
-                  borderRadius: "8px",
-                  height: 48,
-                  fontSize: "0.9rem",
+                  borderRadius: "10px",
+                  height: 50,
+                  fontSize: "0.95rem",
                 },
               }}
               InputProps={{
@@ -180,85 +194,96 @@ export default function DatasetsPage() {
             />
           </Box>
 
-          <Box
-            sx={{
-              display: "flex",
-              gap: 1.2,
-              flexWrap: "wrap",
-              mb: 6,
-            }}
-          >
-            {categories.map((category) => (
-              <Chip
-                key={category}
-                label={category}
-                onClick={() => setSelectedCategory(category)}
-                variant={selectedCategory === category ? "filled" : "outlined"}
-                sx={{
-                  borderRadius: "6px",
-                  fontSize: "0.85rem",
-                  height: 32,
-                  px: 1,
-                  backgroundColor:
-                    selectedCategory === category ? PRIMARY_COLOR : "#fff",
-                  color: selectedCategory === category ? "#fff" : "#374151",
-                  borderColor: "#d1d5db",
-                  "&:hover": {
-                    backgroundColor:
-                      selectedCategory === category ? PRIMARY_COLOR : "#e6f7f6",
-                  },
-                }}
-              />
-            ))}
-          </Box>
-
-          <Box
-            sx={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "space-between",
-              mb: 3,
-            }}
-          >
-            <Box sx={{ display: "flex", alignItems: "center", gap: 1.2 }}>
-              <TrendingUp size={20} color="#111827" />
-              <Typography
-                sx={{
-                  fontSize: "1.3rem",
-                  fontWeight: 700,
-                  color: "#111827",
-                }}
-              >
-                Trending Datasets
-              </Typography>
-            </Box>
-
-            <Typography
-              sx={{
-                fontSize: "0.9rem",
-                fontWeight: 600,
-                color: PRIMARY_COLOR,
-                cursor: "pointer",
-              }}
-            >
-              See All
-            </Typography>
-          </Box>
-
+          {/* Main Content Grid */}
           <Box
             sx={{
               display: "grid",
               gridTemplateColumns: {
                 xs: "1fr",
-                sm: "repeat(2, 1fr)",
-                lg: "repeat(4, 1fr)",
+                md: "320px 1fr",
               },
               gap: 3,
             }}
           >
-            {filteredDatasets.map((dataset) => (
-              <DatasetCard key={dataset.id} dataset={dataset} />
-            ))}
+            {/* Sidebar */}
+            <CategorySidebar
+              selectedCategory={selectedCategory}
+              onCategorySelect={setSelectedCategory}
+            />
+
+            {/* Main Content */}
+            <Box>
+              {/* Category Header */}
+              <Box
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  mb: 3,
+                }}
+              >
+                <Box sx={{ display: "flex", alignItems: "center", gap: 1.2 }}>
+                  <TrendingUp size={20} color="#111827" />
+                  <Typography
+                    sx={{
+                      fontSize: "1.3rem",
+                      fontWeight: 700,
+                      color: "#111827",
+                    }}
+                  >
+                    {categoryTitle}
+                  </Typography>
+                </Box>
+
+                <Typography
+                  sx={{
+                    fontSize: "0.9rem",
+                    fontWeight: 600,
+                    color: PRIMARY_COLOR,
+                    cursor: "pointer",
+                  }}
+                >
+                  See All
+                </Typography>
+              </Box>
+
+              {/* Datasets Grid */}
+              <Box
+                sx={{
+                  display: "grid",
+                  gridTemplateColumns: {
+                    xs: "1fr",
+                    sm: "repeat(2, 1fr)",
+                    lg: "repeat(3, 1fr)",
+                  },
+                  gap: 3,
+                }}
+              >
+                {filteredDatasets.length > 0 ? (
+                  filteredDatasets.map((dataset) => (
+                    <DatasetCard key={dataset.id} dataset={dataset} />
+                  ))
+                ) : (
+                  <Box
+                    sx={{
+                      gridColumn: "1 / -1",
+                      textAlign: "center",
+                      py: 6,
+                    }}
+                  >
+                    <Typography
+                      sx={{
+                        fontSize: "1rem",
+                        color: "#6b7280",
+                        fontWeight: 500,
+                      }}
+                    >
+                      No datasets found in this category
+                    </Typography>
+                  </Box>
+                )}
+              </Box>
+            </Box>
           </Box>
         </Container>
       </Box>
@@ -280,41 +305,61 @@ function DatasetCard({ dataset }) {
   return (
     <Card
       sx={{
-        borderRadius: 2,
+        borderRadius: "12px",
         overflow: "hidden",
         backgroundColor: "#fff",
         border: "1px solid #e5e7eb",
         boxShadow: "none",
-        transition: "0.2s ease",
+        transition: "all 0.3s ease",
+        height: "100%",
+        display: "flex",
+        flexDirection: "column",
         "&:hover": {
-          transform: "translateY(-2px)",
-          boxShadow: "0 6px 18px rgba(0,0,0,0.08)",
+          transform: "translateY(-4px)",
+          boxShadow: "0 10px 24px rgba(97, 197, 195, 0.12)",
+          borderColor: PRIMARY_COLOR,
         },
       }}
     >
+      {/* Image Section */}
       <Box
         sx={{
-          height: 145,
+          height: 160,
           backgroundImage: `url(${dataset.image})`,
           backgroundSize: "cover",
           backgroundPosition: "center",
+          position: "relative",
+          "&::after": {
+            content: '""',
+            position: "absolute",
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: "rgba(0,0,0,0)",
+            transition: "backgroundColor 0.2s ease",
+          },
+          "&:hover::after": {
+            backgroundColor: "rgba(0,0,0,0.1)",
+          },
         }}
       />
 
-      <CardContent sx={{ p: 2 }}>
+      <CardContent sx={{ p: 2.5, flex: 1, display: "flex", flexDirection: "column" }}>
+        {/* Title and Menu */}
         <Box
           sx={{
             display: "flex",
             alignItems: "flex-start",
             justifyContent: "space-between",
             gap: 1,
-            mb: 1,
+            mb: 1.5,
           }}
         >
           <Typography
             onClick={handleOpenDataset}
             sx={{
-              fontSize: "0.95rem",
+              fontSize: "0.98rem",
               fontWeight: 700,
               lineHeight: 1.4,
               color: "#111827",
@@ -323,59 +368,130 @@ function DatasetCard({ dataset }) {
               WebkitLineClamp: 2,
               WebkitBoxOrient: "vertical",
               overflow: "hidden",
+              transition: "color 0.2s ease",
               "&:hover": {
                 color: PRIMARY_COLOR,
-                textDecoration: "underline",
               },
             }}
           >
             {dataset.title}
           </Typography>
 
-          <IconButton size="small" sx={{ mt: -0.3 }}>
+          <IconButton size="small" sx={{ mt: -0.5, minWidth: 32 }}>
             <MoreVertical size={16} />
           </IconButton>
         </Box>
 
+        {/* Author */}
         <Typography
           sx={{
             fontSize: "0.85rem",
             color: "#1f2937",
-            mb: 1,
+            fontWeight: 500,
+            mb: 1.2,
           }}
         >
           {dataset.author}
         </Typography>
 
-        <Typography
+        {/* Usability and Updated */}
+        <Box
           sx={{
+            display: "flex",
+            alignItems: "center",
+            gap: 0.8,
+            mb: 1.5,
             fontSize: "0.8rem",
             color: "#6b7280",
-            mb: 0.7,
           }}
         >
-          Usability <b>{dataset.usability}</b> · {dataset.updated}
-        </Typography>
+          <Typography sx={{ fontSize: "inherit" }}>
+            Usability <b style={{ color: "#111827" }}>{dataset.usability}</b>
+          </Typography>
+          <Box sx={{ width: 1, height: 1, borderRadius: "50%", backgroundColor: "#d1d5db" }} />
+          <Box sx={{ display: "flex", alignItems: "center", gap: 0.4 }}>
+            <Calendar size={14} />
+            <Typography sx={{ fontSize: "inherit" }}>{dataset.updated}</Typography>
+          </Box>
+        </Box>
 
-        <Typography
+        {/* File Details - Spaced Row */}
+        <Box
           sx={{
-            fontSize: "0.8rem",
-            color: "#6b7280",
-            mb: 0.5,
+            display: "grid",
+            gridTemplateColumns: "repeat(3, 1fr)",
+            gap: 1,
+            mb: 2,
+            pb: 2,
+            borderBottom: "1px solid #e5e7eb",
           }}
         >
-          {dataset.files} · {dataset.size} · {dataset.downloads}
-        </Typography>
+          {/* File Type */}
+          <Box
+            sx={{
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              gap: 0.4,
+              p: 1,
+              borderRadius: "8px",
+              backgroundColor: "#f9fafb",
+            }}
+          >
+            <FileIcon size={16} style={{ color: PRIMARY_COLOR }} />
+            <Typography sx={{ fontSize: "0.7rem", color: "#6b7280", textAlign: "center" }}>
+              {dataset.files}
+            </Typography>
+          </Box>
+
+          {/* Storage */}
+          <Box
+            sx={{
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              gap: 0.4,
+              p: 1,
+              borderRadius: "8px",
+              backgroundColor: "#f9fafb",
+            }}
+          >
+            <HardDrive size={16} style={{ color: PRIMARY_COLOR }} />
+            <Typography sx={{ fontSize: "0.7rem", color: "#6b7280", textAlign: "center" }}>
+              {dataset.size}
+            </Typography>
+          </Box>
+
+          {/* Downloads */}
+          <Box
+            sx={{
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              gap: 0.4,
+              p: 1,
+              borderRadius: "8px",
+              backgroundColor: "#f9fafb",
+            }}
+          >
+            <Download size={16} style={{ color: PRIMARY_COLOR }} />
+            <Typography sx={{ fontSize: "0.7rem", color: "#6b7280", textAlign: "center" }}>
+              {dataset.downloads}
+            </Typography>
+          </Box>
+        </Box>
       </CardContent>
 
+      {/* Footer */}
       <Box
         sx={{
-          px: 2,
+          px: 2.5,
           py: 1.5,
           borderTop: "1px solid #e5e7eb",
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
+          backgroundColor: "#f9fafb",
         }}
       >
         <Box
@@ -391,7 +507,7 @@ function DatasetCard({ dataset }) {
           <Box
             sx={{
               px: 1,
-              py: 0.5,
+              py: 0.4,
               display: "flex",
               alignItems: "center",
               borderRight: "1px solid #d1d5db",
@@ -400,10 +516,10 @@ function DatasetCard({ dataset }) {
             <ChevronUp size={14} />
           </Box>
 
-          <Box sx={{ px: 1.4, py: 0.35 }}>
+          <Box sx={{ px: 1.2, py: 0.3 }}>
             <Typography
               sx={{
-                fontSize: "0.85rem",
+                fontSize: "0.8rem",
                 fontWeight: 700,
               }}
             >
@@ -412,14 +528,14 @@ function DatasetCard({ dataset }) {
           </Box>
         </Box>
 
-        <Box sx={{ display: "flex", alignItems: "center", gap: 0.7 }}>
+        <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
           {dataset.avatars.map((avatar, index) => (
             <Avatar
               key={index}
               src={avatar}
               sx={{
-                width: 26,
-                height: 26,
+                width: 24,
+                height: 24,
                 border: `2px solid ${PRIMARY_COLOR}`,
               }}
             />
